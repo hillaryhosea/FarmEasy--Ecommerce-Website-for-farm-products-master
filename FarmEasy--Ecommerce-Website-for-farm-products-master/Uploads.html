@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Product</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        position: absolute;
+        top: 8rem;
+      }
+
+      form {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        width: 400px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      button[type="submit"] {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Upload Product</h1>
+    <form id="product-form" enctype="multipart/form-data">
+      <label for="productName">Product Name:</label>
+      <input type="text" id="productName" name="productName" required />
+      <br />
+      <label for="productPrice">Product Price:</label>
+      <input type="number" id="productPrice" name="productPrice" required />
+      <br />
+      <label for="productImage">Product Image:</label>
+      <input
+        type="file"
+        id="productImage"
+        name="productImage"
+        accept="image/*"
+        required
+      />
+      <br />
+      <button type="submit">Upload Product</button>
+    </form>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const productForm = document.getElementById("product-form");
+
+        productForm.addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const formData = new FormData(productForm);
+
+          try {
+            const response = await fetch("http://localhost:5000/upload", {
+              method: "POST",
+              body: formData, // Send the entire FormData object
+            });
+
+            if (response.ok) {
+              // Product uploaded successfully
+              console.log("Product uploaded successfully.");
+              // You can redirect the user to the farmer's page or display a success message.
+              // Fetch the updated list of products
+              
+              const productResponse = await fetch(
+                "http://localhost:5000/products"
+              );
+
+              const products = await productResponse.json();
+              console.log(products);
+              // Clear the existing product section
+              const productSection = document.querySelector(".product-section");
+              productSection.innerHTML = "";
+
+              // Regenerate product cards based on the updated product list
+              products.forEach((product) => {
+                const productCardHtml = createProductCard(product);
+                productSection.insertAdjacentHTML("beforeend", productCardHtml);
+              });
+            } else {
+              console.error("Product upload failed.");
+            }
+          } catch (error) {
+            console.error("An error occurred:", error);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

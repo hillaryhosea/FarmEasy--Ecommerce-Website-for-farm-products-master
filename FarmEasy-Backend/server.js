@@ -5,14 +5,36 @@ import Shipping from './models/shippingModel.js';
 import mongoose from 'mongoose';
 import Signup from './models/signUpModel.js';
 import bcrypt from 'bcrypt'
+import Product from './models/ProductModel.js';
+import multer from 'multer'
+import path from 'path'
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Now you can use __dirname as you normally would
+
 
 
 const app = express();
 dotenv.config();
 app.use(cors());
+
+const storage = multer.diskStorage({
+  destination: "public/uploads/",
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage });
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/public", express.static(path.join(__dirname, "public")));
 mongoose
   .connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
@@ -121,6 +143,39 @@ app.post('/shipping', async(req, res) => {
         res.status(500).json({ message: 'Internal server error' });
       }
     });
+
+    // Import necessary libraries and modules
+
+// Define routes and handlers
+app.post('/upload', upload.single('productImage'), async (req, res) => {
+  try {
+    // Save product details including the image URL to the database
+    const newProduct = new Product({
+      name: req.body.productName,
+      price: req.body.productPrice,
+      imageUrl: req.file.path, // This assumes you have configured multer for file uploads
+    });
+    await newProduct.save();
+
+    res.status(201).send({ message: 'Product uploaded successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Error uploading product' });
+  }
+});
+
+app.get('/products', async (req, res) => {
+  try {
+    // Retrieve all products from the database
+    const products = await Product.find();
+console.log(products);
+    res.status(200).send(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Error fetching products' });
+  }
+});
+
 
 
 app.listen(5000, () => {
