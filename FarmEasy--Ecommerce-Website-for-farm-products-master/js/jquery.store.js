@@ -648,3 +648,82 @@ $.noConflict();
 })( jQuery );
 
 
+// chekout sumit
+// const form = document.getElementById('checkout-order-form');
+// const submitButton = document.getElementById('submit-order');
+
+// submitButton.addEventListener('click', async function (event) {
+//   // Get the form data.
+//   const formData = new FormData(form);
+//   console.log(formData);
+  
+
+//   // Create a new fetch request.
+//   const request = await fetch("http://localhost:5000/shipping", {
+//     method: "POST",
+//     headers: {
+//         "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify(Object.fromEntries(formData))
+// })
+//   // Prevent the default refreshing.
+//   event.preventDefault();
+
+//   // Handle the response.
+//   if (request.status === 200) {
+//     // The request was successful.
+//     console.log('The request was successful.');
+//   } else {
+//     // The request failed.
+//     console.log('The request failed.');
+//   }
+// });
+
+const form = document.getElementById('checkout-order-form');
+const submitButton = document.getElementById('submit-order');
+
+submitButton.addEventListener('click', async function (event) {
+  // Get the form data.
+  const formData = new FormData(form);
+
+  // Retrieve cart data from session storage
+  const cartData = sessionStorage.getItem('Furniture-cart');
+  const cartObject = JSON.parse(cartData);
+  
+  // Create an array to hold all cart items
+  const cartItemsArray = [];
+
+  // Add cart items to the array
+  if (cartObject && cartObject.items) {
+    for (let i = 0; i < cartObject.items.length; i++) {
+      const item = cartObject.items[i];
+      cartItemsArray.push(item);
+    }
+  }
+
+  // Add the cart items array to the form data
+  formData.append('cartItems', JSON.stringify(cartItemsArray));
+
+  // Create a new fetch request.
+  const request = await fetch("http://localhost:5000/shipping", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(Object.fromEntries(formData))
+  });
+
+  // Prevent the default refreshing.
+  event.preventDefault();
+
+  // Handle the response.
+  if (request.status === 200) {
+    // The request was successful.
+    console.log('The request was successful.');
+  } else {
+    // The request failed.
+    console.log('The request failed.');
+  }
+});
+
+

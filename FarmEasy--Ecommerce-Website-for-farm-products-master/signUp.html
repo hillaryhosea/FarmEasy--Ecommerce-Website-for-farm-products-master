@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Sign Up</title>
+  <style>
+       body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.signup-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  padding-bottom: 4rem;
+}
+
+h1 {
+  text-align: center;
+}
+
+label {
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+button a{
+    text-decoration: none;
+    color: white;
+}
+
+.submit-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.sign-in{
+    margin-top: 2rem;
+}
+
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <h1>Sign Up</h1>
+    <form id="signup-form">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required placeholder="Name"><br>
+      
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required placeholder="Email"><br>
+      
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required placeholder="Password"><br>
+      
+      <div class="submit-buttons">
+        <button type="submit" name="role" id="customer-btn" value="customer">Sign Up as Customer</button>
+        <button type="submit" name="role"id="farmer-btn" value="farmer">Sign Up as Farmer</button>
+        <input type="hidden" id="role" name="role" value="">
+      </div>
+        <div class="sign-in">
+            Already have an accout? <a href="login.html">sign in</a>
+        </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const signupForm = document.getElementById("signup-form");
+      const roleInput = document.getElementById("role");
+      const customerBtn = document.getElementById("customer-btn");
+      const farmerBtn = document.getElementById("farmer-btn");
+
+      customerBtn.addEventListener("click", function () {
+        roleInput.value = "customer";
+      });
+
+      farmerBtn.addEventListener("click", function () {
+        roleInput.value = "farmer";
+      });
+
+      signupForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(signupForm);
+        const role = formData.get("role");
+
+        const userData = {
+          name: formData.get("name"),
+          email: formData.get("email"),
+          password: formData.get("password"),
+          role: role,
+        };
+
+        try {
+          const response = await fetch("http://localhost:5000/signup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userData),
+          });
+
+          if (response.ok) {
+            const responseData = await response.json();
+            if (role === "customer") {
+              window.location.href = "index.html"; // Redirect to homepage for customer
+            } else if (role === "farmer") {
+              window.location.href = "farmerspage.html"; // Redirect to orders page for farmer
+            }
+          } else {
+            alert("Sign-up request failed.");
+          }
+        } catch (error) {
+          console.error("An error occurred:", error);
+        }
+      });
+    });
+  </script>
+  
+</body>
+</html>
